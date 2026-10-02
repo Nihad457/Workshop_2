@@ -270,7 +270,47 @@ visitors_with_nations |>
 _Within each of the 4 nations, what is the proportion of tourist attractions that have free admission for all visitors?_
 
 ```{r Ex_m}
+visitors_with_nations |>
+  filter(nation=="England") |>
+  count() -> TOT_EN
+visitors_with_nations |>
+  filter(nation=="England", admission == "Free") |>
+  count() -> FREE_EN
 
+PROP_EN <- FREE_EN / TOT_EN
+
+visitors_with_nations |>
+  filter(nation=="Northern Ireland") |>
+  count() -> TOT_IR
+visitors_with_nations |>
+  filter(nation=="Northern Ireland", admission == "Free") |>
+  count() -> FREE_IR
+
+PROP_IR <- FREE_IR / TOT_IR
+
+PROP_EN <- FREE_EN / TOT_EN
+
+visitors_with_nations |>
+  filter(nation=="Scotland") |>
+  count() -> TOT_SC
+visitors_with_nations |>
+  filter(nation=="Scotland", admission == "Free") |>
+  count() -> FREE_SC
+
+PROP_SC <- FREE_SC / TOT_SC
+
+visitors_with_nations |>
+  filter(nation=="Wales") |>
+  count() -> TOT_WL
+visitors_with_nations |>
+  filter(nation=="Wales", admission == "Free") |>
+  count() -> FREE_WL
+
+PROP_WL <- FREE_WL / TOT_WL
+
+tibble(Name = c("England", "Northern Ireland", "Scotland", "Wales"),
+       Proportions = c(PROP_EN, PROP_IR, PROP_SC, PROP_WL)) |>
+  unnest(Proportions)
 ```
 
 
@@ -279,8 +319,29 @@ _Within each of the 4 nations, what is the proportion of tourist attractions tha
 _Calculate the percentage change in visitor admissions from 2021 to 2022. Of the tourist attractions in Scotland, sort into increasing numerical order the types of admission charges based on the mean percentage change in visitor numbers._
 
 ```{r Ex_n}
-# Write your code here
+visitors_with_nations |>
+  filter(nation == "Scotland") |>
+  select(n_2021, n_2022, admission) -> Visitor_change
 
+Visitor_change |>
+mutate(Change = (n_2022-n_2021)/n_2021 *100) |> 
+    select(admission, Change) -> tab1
+
+tab1 |>
+  filter(admission=="Members") |>
+  summarise(mean(Change, na.rm=TRUE)) -> members
+
+tab1 |>
+  filter(admission=="Free") |>
+  summarise(mean(Change, na.rm=TRUE)) -> free
+
+tab1 |>
+  filter(admission=="Charged") |>
+  summarise(mean(Change, na.rm=TRUE)) -> charged
+
+tibble(admission = c("Members", "Free", "Charged"), 
+       Percentage = c(members, free, charged)) |>
+  unnest(Percentage) |> arrange(desc(desc(Percentage)))
 
 
 ```
